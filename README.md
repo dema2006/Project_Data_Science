@@ -6,7 +6,7 @@ Urban Metrics Consulting
 
 ## Состав группы
 
-Стаценко Дементий (telegram: @dema_stat), Суханов Илья (telegram: @Sukhanov_id)
+Стаценко Дементий (telegram: @dema_stat), Суханов Илья (telegram: @Sukhanov_id), Хачатрян Артуш (telegram: @ArtushKh)
 
 ## Идея компании
 
