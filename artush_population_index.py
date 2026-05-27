@@ -1,12 +1,6 @@
 """
 ЧАСТЬ АРТУША: население, расстояния и расчёт индекса транспортной доступности
 
-Задача файла:
-1. Получить сырые buildings/stops от парсера Ильи
-2. Оценить население микрорайона через площадь жилой застройки
-3. Посчитать расстояние от каждого жилого здания до ближайшей остановки
-4. Сформировать итоговую строку по каждому микрорайону
-5. Сформировать общий CSV microdistrict_accessibility_results.csv
 """
 
 from __future__ import annotations
@@ -65,14 +59,6 @@ def nearest_distances(buildings: pd.DataFrame, stops: pd.DataFrame) -> np.ndarra
         dists, _ = tree.query(b, k=1)
         return dists
 
-    # Медленный fallback, если scipy не установлен.
-    dists = []
-    for bx, by in b:
-        diff = s - np.array([bx, by])
-        dists.append(np.sqrt((diff * diff).sum(axis=1)).min())
-    return np.array(dists)
-
-
 def recommendation_from_index(far_share: float) -> str:
     """Текстовая рекомендация по уровню проблемности района."""
     if far_share >= 0.65:
@@ -80,62 +66,6 @@ def recommendation_from_index(far_share: float) -> str:
     if far_share >= 0.35:
         return "Средний приоритет: увеличить частоту и проверить покрытие остановками"
     return "Низкий приоритет: поддерживать текущую сеть и мониторить рост застройки"
-
-
-def fallback_district_metrics(city: str, district: str, city_population: int, total_districts: int) -> ParsedDistrict:
-    """Демо-режим, если Nominatim/Overpass не доступны.
-
-    Данные не являются реальными. Они нужны, чтобы пайплайн и графики работали
-    даже без интернета.
-    """
-    rng = np.random.default_rng(stable_seed(city + district))
-    typology = stable_seed(district) % 3
-
-    if typology == 0:
-        buildings_count = int(rng.integers(250, 850))
-        stops_count = int(rng.integers(3, 12))
-        routes_count = int(rng.integers(1, 6))
-        avg_distance = float(rng.uniform(650, 1200))
-    elif typology == 1:
-        buildings_count = int(rng.integers(700, 1800))
-        stops_count = int(rng.integers(12, 36))
-        routes_count = int(rng.integers(5, 18))
-        avg_distance = float(rng.uniform(280, 650))
-    else:
-        buildings_count = int(rng.integers(500, 1300))
-        stops_count = int(rng.integers(6, 22))
-        routes_count = int(rng.integers(3, 12))
-        avg_distance = float(rng.uniform(430, 850))
-
-    residential_area = float(buildings_count * rng.uniform(75, 160))
-    pop = city_population / total_districts * rng.uniform(0.45, 1.65)
-    p90 = avg_distance * rng.uniform(1.35, 1.85)
-
-    far_share = 1 / (1 + math.exp(-(avg_distance - 500) / 150))
-    far_share = float(np.clip(far_share + rng.normal(0, 0.06), 0, 1))
-
-    stops_per_10k = stops_count / pop * 10_000
-    routes_per_10k = routes_count / pop * 10_000
-
-    return ParsedDistrict(
-        city=city,
-        district=district,
-        data_source="synthetic_fallback",
-        bbox=(0, 0, 0, 0),
-        buildings_count=buildings_count,
-        stops_count=stops_count,
-        routes_count=routes_count,
-        residential_area_m2=residential_area,
-        population_estimate=pop,
-        avg_distance_m=avg_distance,
-        p90_distance_m=p90,
-        far_population_share_500m=far_share,
-        accessibility_index=far_share,
-        stops_per_10k=stops_per_10k,
-        routes_per_10k=routes_per_10k,
-        recommendation=recommendation_from_index(far_share),
-    )
-
 
 def analyze_district_real(city: str, district: str, city_population: int, total_districts: int) -> ParsedDistrict:
     """Реальный расчёт показателей микрорайона по OSM-данным."""
