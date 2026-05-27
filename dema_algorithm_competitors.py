@@ -1,16 +1,5 @@
 """
 ЧАСТЬ ДЁМЫ: алгоритм, графики, сценарий улучшений и анализ конкурентов
-
-Задача файла:
-1. Запускать общий пайплайн по районам
-2. Строить графики по микрорайонам и городам
-3. Формировать сценарий улучшения для проблемных районов
-4. Делать конкурентный анализ через снапшот данных госзакупок
-
-Запуск всего проекта:
-    python code/dema_algorithm_competitors.py --mode auto --project-dir .
-    python code/dema_algorithm_competitors.py --mode real --project-dir .
-    python code/dema_algorithm_competitors.py --mode fallback --project-dir .
 """
 
 from __future__ import annotations
