@@ -1,9 +1,0 @@
-pandas
-numpy
-matplotlib
-requests
-shapely
-pyproj
-scipy
-beautifulsoup4
-lxml
